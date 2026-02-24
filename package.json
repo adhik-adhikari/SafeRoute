@@ -1,0 +1,20 @@
+{
+  "name": "saferoute",
+  "version": "1.0.0",
+  "main": "frontend/expo-router/entry",
+  "scripts": {
+    "start": "cd frontend && expo start",
+    "android": "cd frontend && expo start --android",
+    "ios": "cd frontend && expo start --ios",
+    "web": "cd frontend && expo start --web"
+  },
+  "dependencies": {
+    "expo": "^52.0.44",
+    "expo-location": "~18.0.10",
+    "react-native-maps": "^1.18.0"
+  },
+  "devDependencies": {
+    "@types/react": "~18.3.12",
+    "typescript": "^5.3.3"
+  }
+}
