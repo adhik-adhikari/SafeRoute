@@ -15,9 +15,9 @@ SafeRoute is a mobile application that helps users navigate safely by providing 
 | Risk area computation (distance + time-decay scoring) | ✅ Done |
 | AI-powered crime report parsing (Gemini API) | ✅ Done |
 | Push notification device registration | ✅ Done |
-| Interactive map with risk overlays | 🚧 In progress |
+| Interactive map with risk overlays | ✅ Done |
 | Route optimization with risk avoidance | 🚧 In progress |
-| Crime statistics dashboard | 🚧 In progress |
+| Crime statistics dashboard | ✅ Done |
 
 ---
 
