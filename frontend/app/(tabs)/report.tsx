@@ -150,9 +150,10 @@ export default function ReportScreen() {
           longitude: selectedLocation.longitude,
           description: `${crimeType?.label}: ${crimeType?.description || ''}`,
           reported_at: new Date().toISOString().split('.')[0] + 'Z',
-          severity: crimeType?.id === 'ASSAULT' || crimeType?.id === 'ROBBERY' ? 4 : 
-                   crimeType?.id === 'THEFT' || crimeType?.id === 'VANDALISM' ? 3 : 
-                   crimeType?.id === 'HARASSMENT' || crimeType?.id === 'TRESPASSING' ? 2 : 1
+          severity: crimeType?.id === 'SEXUAL_HARASSMENT' ? 5 :
+                   crimeType?.id === 'ASSAULT' || crimeType?.id === 'ROBBERY' ? 4 : 
+                   crimeType?.id === 'BURGLARY' ? 3 : 
+                   crimeType?.id === 'THEFT' || crimeType?.id === 'VANDALISM' ? 2 : 1
         }),
       });
 

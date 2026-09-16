@@ -8,9 +8,11 @@ import time
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable is not set. Please set it before running the application.")
-
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+    import warnings
+    warnings.warn("GEMINI_API_KEY environment variable is not set. AI crime report parsing will not work.")
+    GEMINI_API_URL = None
+else:
+    GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
 
 def get_text_from_file(file_obj):
     "this reads and returns text from file"
@@ -33,6 +35,15 @@ def get_text_from_url(url):
         raise Exception(f"Error fetching URL: {str(e)}")
 
 def clean_and_extract(text, max_retries=3):
+    if not GEMINI_API_URL:
+        return {
+            "error": "GEMINI_API_KEY is not configured",
+            "latitude": None,
+            "longitude": None,
+            "crime_type": None,
+            "date": None
+        }
+
     prompt = (
         "You are an expert in data extraction and geospatial analysis. Analyze the following text and extract the following information: \n"
         "1. The first occurrence of latitude and longitude (if explicitly present). If they are not present, return null for each. \n"

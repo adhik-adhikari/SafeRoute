@@ -3,6 +3,7 @@ import { useGoogleAuth } from '../services/auth';
 
 interface User {
   email: string | null;
+  displayName?: string | null;
   photoURL?: string | null;
 }
 
@@ -19,27 +20,25 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const { getCurrentUser } = useGoogleAuth();
+  const { userInfo } = useGoogleAuth();
 
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        if (currentUser) {
-          setUser({
-            email: currentUser.email,
-            photoURL: currentUser.photoURL,
-          });
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-      } finally {
-        setLoading(false);
+    try {
+      if (userInfo) {
+        setUser({
+          email: userInfo.email ?? null,
+          displayName: userInfo.displayName ?? null,
+          photoURL: userInfo.photoUrl ?? null,
+        });
+      } else {
+        setUser(null);
       }
-    };
-
-    initAuth();
-  }, []);
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userInfo]);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
