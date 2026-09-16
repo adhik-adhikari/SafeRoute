@@ -109,7 +109,7 @@ export default function HomeScreen() {
 
         {/* Quick Actions */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => router.push('/map')}>
             <FontAwesome name="map-marker" size={24} color="#DB4437" style={styles.actionIcon} />
             <ThemedText style={styles.actionText}>Start Navigation</ThemedText>
           </TouchableOpacity>

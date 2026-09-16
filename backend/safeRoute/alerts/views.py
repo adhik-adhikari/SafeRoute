@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from .models import CrimeIncident, RiskArea
 from .models import Device
 from .utils import compute_risk_score, ai_predict_risk, calculate_distance
+from .route_optimizer import optimize_routes
 from django.utils import timezone
 from .serializers import CrimeIncidentSerializer
 import logging
@@ -237,6 +238,12 @@ def register_device(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+class CrimeIncidentListView(generics.ListAPIView):
+    """List all crime incidents."""
+    queryset = CrimeIncident.objects.all().order_by('-reported_at')
+    serializer_class = CrimeIncidentSerializer
+
+
 def send_push_notification(device_token, title, body):
     """
     Send a push notification to a specific device
@@ -266,4 +273,97 @@ def send_push_notification(device_token, title, body):
 
     except Exception as e:
         print(f"Error sending push notification: {str(e)}")
-        return False 
+        return False
+
+
+class SafeRouteAPIView(APIView):
+    """
+    Computes direct route and risk-optimized alternative route.
+    Avoids high-risk crime zones by synthesizing smart detour waypoints.
+    """
+    def get(self, request, format=None):
+        try:
+            start_lat = request.query_params.get('start_lat')
+            start_lon = request.query_params.get('start_lon')
+            end_lat = request.query_params.get('end_lat')
+            end_lon = request.query_params.get('end_lon')
+            mode = request.query_params.get('mode', 'walking')
+
+            if not all([start_lat, start_lon, end_lat, end_lon]):
+                return Response({
+                    "error": "Missing required query parameters: 'start_lat', 'start_lon', 'end_lat', 'end_lon'"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                s_lat = float(start_lat)
+                s_lon = float(start_lon)
+                e_lat = float(end_lat)
+                e_lon = float(end_lon)
+            except ValueError:
+                return Response({
+                    "error": "'start_lat', 'start_lon', 'end_lat', 'end_lon' must all be numeric"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Retrieve active risk areas from in-memory and database
+            active_risk_areas = list(risk_areas)
+
+            result = optimize_routes(
+                start_lat=s_lat,
+                start_lon=s_lon,
+                end_lat=e_lat,
+                end_lon=e_lon,
+                risk_areas=active_risk_areas,
+                mode=mode
+            )
+
+            return Response(result, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error computing safe route: {str(e)}", exc_info=True)
+            return Response({
+                "error": f"An error occurred while computing the route: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, format=None):
+        """Allows POST with JSON body containing coordinates and mode."""
+        try:
+            data = request.data or {}
+            start_lat = data.get('start_lat')
+            start_lon = data.get('start_lon')
+            end_lat = data.get('end_lat')
+            end_lon = data.get('end_lon')
+            mode = data.get('mode', 'walking')
+
+            if not all([start_lat, start_lon, end_lat, end_lon]):
+                return Response({
+                    "error": "Missing required fields: 'start_lat', 'start_lon', 'end_lat', 'end_lon'"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                s_lat = float(start_lat)
+                s_lon = float(start_lon)
+                e_lat = float(end_lat)
+                e_lon = float(end_lon)
+            except ValueError:
+                return Response({
+                    "error": "'start_lat', 'start_lon', 'end_lat', 'end_lon' must all be numeric"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            active_risk_areas = list(risk_areas)
+            result = optimize_routes(
+                start_lat=s_lat,
+                start_lon=s_lon,
+                end_lat=e_lat,
+                end_lon=e_lon,
+                risk_areas=active_risk_areas,
+                mode=mode
+            )
+
+            return Response(result, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error computing safe route: {str(e)}", exc_info=True)
+            return Response({
+                "error": f"An error occurred while computing the route: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 

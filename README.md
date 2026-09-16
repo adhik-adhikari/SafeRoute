@@ -16,7 +16,7 @@ SafeRoute is a mobile application that helps users navigate safely by providing 
 | AI-powered crime report parsing (Gemini API) | ✅ Done |
 | Push notification device registration | ✅ Done |
 | Interactive map with risk overlays | ✅ Done |
-| Route optimization with risk avoidance | 🚧 In progress |
+| Route optimization with risk avoidance | ✅ Done |
 | Crime statistics dashboard | ✅ Done |
 
 ---
@@ -134,6 +134,7 @@ npx expo start
 | `POST` | `/api/crime-reports/` | Submit a new crime report |
 | `GET` | `/api/crime-incidents/` | List all crime incidents |
 | `POST` | `/api/register-device/` | Register a device for push notifications |
+| `GET` | `/api/safe-route/` | Compute direct & risk-avoiding routes (`?start_lat=&start_lon=&end_lat=&end_lon=&mode=`) |
 
 ---
 
